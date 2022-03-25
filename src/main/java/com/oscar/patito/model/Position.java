@@ -1,23 +1,28 @@
 package com.oscar.patito.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table
 public class Position {
     @Id
+    @Column(nullable = false,length = 60)
     private String corporateEmail;
+    @Column
     private String oldPosition;
+    @Column
     private String currentPosition;
+    @Column
     private Double oldSalary;
+    @Column
     private Double currentSalary;
 }
