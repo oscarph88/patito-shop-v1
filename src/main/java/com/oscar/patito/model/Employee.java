@@ -28,6 +28,6 @@ public class Employee {
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Contact contact;
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Position position;
+    private PositionInfo positionInfo;
 
 }

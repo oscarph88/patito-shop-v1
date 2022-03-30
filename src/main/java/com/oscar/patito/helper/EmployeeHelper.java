@@ -3,7 +3,11 @@ package com.oscar.patito.helper;
 import com.oscar.patito.model.Contact;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.model.Position;
+import com.oscar.patito.model.PositionInfo;
+import com.oscar.patito.payload.ContactPayload;
 import com.oscar.patito.payload.EmployeePayload;
+import com.oscar.patito.payload.PositionInfoPayload;
+import com.oscar.patito.payload.PositionPayload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,7 +17,7 @@ public class EmployeeHelper {
     public Employee generateEmployee(EmployeePayload ep){
         Employee employee = new Employee();
         Contact contact= new Contact();
-        Position position = new Position();
+        PositionInfo positionInfo = new PositionInfo();
         employee.setId(ep.getId()!=null?ep.getId():null);
         employee.setCorporateEmail(ep.getCorporateEmail());
         employee.setFirstName(ep.getFirstName());
@@ -28,21 +32,23 @@ public class EmployeeHelper {
         contact.setState(ep.getContact().getState());
         contact.setCountry(ep.getContact().getCountry());
         contact.setBirthday(ep.getContact().getBirthday());
-        position.setCorporateEmail(ep.getCorporateEmail());
-        position.setOldPosition(ep.getPosition().getOldPosition());
-        position.setCurrentPosition(ep.getPosition().getCurrentPosition());
-        position.setOldSalary(ep.getPosition().getOldSalary());
-        position.setCurrentSalary(ep.getPosition().getCurrentSalary());
+        positionInfo.setCorporateEmail(ep.getCorporateEmail());
+        if (ep.getPosition() != null) {
+            positionInfo.setOldPosition(ep.getPosition().getOldPosition());
+            positionInfo.setCurrentPosition(ep.getPosition().getCurrentPosition());
+            positionInfo.setOldSalary(ep.getPosition().getOldSalary());
+            positionInfo.setCurrentSalary(ep.getPosition().getCurrentSalary());
+        }
         employee.setContact(contact);
-        employee.setPosition(position);
+        employee.setPositionInfo(positionInfo);
         logger.info("Employee object created");
         return employee;
     }
 
     public EmployeePayload generateEmployeePayload(Employee em){
         EmployeePayload employeePayload = new EmployeePayload();
-        Contact contact= new Contact();
-        Position position = new Position();
+        ContactPayload contact= new ContactPayload();
+        PositionInfoPayload positionInfo = new PositionInfoPayload();
         employeePayload.setId(em.getId());
         employeePayload.setCorporateEmail(em.getCorporateEmail());
         employeePayload.setFirstName(em.getFirstName());
@@ -57,20 +63,20 @@ public class EmployeeHelper {
         contact.setState(em.getContact().getState());
         contact.setCountry(em.getContact().getCountry());
         contact.setBirthday(em.getContact().getBirthday());
-        position.setCorporateEmail(em.getCorporateEmail());
-        position.setOldPosition(em.getPosition().getOldPosition());
-        position.setCurrentPosition(em.getPosition().getCurrentPosition());
-        position.setOldSalary(em.getPosition().getOldSalary());
-        position.setCurrentSalary(em.getPosition().getCurrentSalary());
+        positionInfo.setCorporateEmail(em.getCorporateEmail());
+        positionInfo.setOldPosition(em.getPositionInfo().getOldPosition());
+        positionInfo.setCurrentPosition(em.getPositionInfo().getCurrentPosition());
+        positionInfo.setOldSalary(em.getPositionInfo().getOldSalary());
+        positionInfo.setCurrentSalary(em.getPositionInfo().getCurrentSalary());
         employeePayload.setContact(contact);
-        employeePayload.setPosition(position);
+        employeePayload.setPosition(positionInfo);
         logger.info("Employee object created");
         return employeePayload;
     }
 
     public Employee generateEmployeeToUpdate(Employee employee, EmployeePayload ep) {
         Contact contact = employee.getContact();
-        Position position = employee.getPosition();
+        PositionInfo positionInfo = employee.getPositionInfo();
         employee.setFirstName(ep.getFirstName() != null ? ep.getFirstName() : employee.getFirstName());
         employee.setLastName(ep.getLastName() != null ? ep.getLastName() : employee.getLastName());
         employee.setGender(ep.getGender() != null ? ep.getGender() : employee.getGender());
@@ -82,13 +88,37 @@ public class EmployeeHelper {
         contact.setState(ep.getContact().getState() != null ? ep.getContact().getState() : contact.getState());
         contact.setCountry(ep.getContact().getCountry() != null ? ep.getContact().getCountry() : contact.getCountry());
         contact.setBirthday(ep.getContact().getBirthday() != null ? ep.getContact().getBirthday() : contact.getBirthday());
-        position.setOldPosition(ep.getPosition().getOldPosition() != null ? ep.getPosition().getOldPosition() : position.getOldPosition());
-        position.setCurrentPosition(ep.getPosition().getCurrentPosition() != null ? ep.getPosition().getCurrentPosition() : position.getCurrentPosition());
-        position.setOldSalary(ep.getPosition().getOldSalary() != null ? ep.getPosition().getOldSalary() : position.getOldSalary());
-        position.setCurrentSalary(ep.getPosition().getCurrentSalary() != null ? ep.getPosition().getCurrentSalary() : position.getCurrentSalary());
+        positionInfo.setOldPosition(ep.getPosition().getOldPosition() != null ? ep.getPosition().getOldPosition() : positionInfo.getOldPosition());
+        positionInfo.setCurrentPosition(ep.getPosition().getCurrentPosition() != null ? ep.getPosition().getCurrentPosition() : positionInfo.getCurrentPosition());
+        positionInfo.setOldSalary(ep.getPosition().getOldSalary() != null ? ep.getPosition().getOldSalary() : positionInfo.getOldSalary());
+        positionInfo.setCurrentSalary(ep.getPosition().getCurrentSalary() != null ? ep.getPosition().getCurrentSalary() : positionInfo.getCurrentSalary());
         employee.setContact(contact);
-        employee.setPosition(position);
+        employee.setPositionInfo(positionInfo);
         logger.info("Employee object updated");
         return employee;
+    }
+
+    public ContactPayload generateContactPayload(Contact c){
+        return new ContactPayload(c.getCorporateEmail(), c.getPersonalEmail(), c.getPhoneNumber(),
+                c.getAddress(),c.getCity(), c.getState(), c.getCountry(), c.getBirthday());
+    }
+
+    public PositionInfoPayload generatePositionInfoPayload(PositionInfo p, Position oldPosition, Position currentPosition){
+        return new PositionInfoPayload(p.getCorporateEmail(), p.getOldPosition(),
+                oldPosition!=null?oldPosition.getName():null, p.getCurrentPosition(),
+                currentPosition!=null?currentPosition.getName():null, p.getOldSalary(), p.getCurrentSalary());
+    }
+
+    public PositionPayload generatePositionPayload(Position p){
+        return new PositionPayload(p.getId(), p.getName(), p.getDescription());
+    }
+
+    public PositionInfo generatePositionInfo(PositionInfoPayload p){
+        return new PositionInfo(p.getCorporateEmail(), p.getOldPosition(), p.getCurrentPosition(),
+                p.getOldSalary(), p.getCurrentSalary());
+    }
+
+    public Position generatePosition(PositionPayload p){
+        return new Position(p.getId(), p.getName(), p.getDescription());
     }
 }

@@ -1,7 +1,10 @@
 package com.oscar.patito.api;
 
 import com.oscar.patito.model.Employee;
+import com.oscar.patito.model.Position;
 import com.oscar.patito.payload.EmployeePayload;
+import com.oscar.patito.payload.PositionInfoPayload;
+import com.oscar.patito.payload.PositionPayload;
 import com.oscar.patito.service.EmployeeService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -102,6 +105,33 @@ public class PatitoRestApi {
                     HttpStatus.BAD_REQUEST, "Employee not deleted correctly for id "+id, d);
         }
 
+    }
+
+    @PostMapping("loadPositions")
+    public String loadPositions(@RequestBody List<PositionPayload> positionsRequests){
+        try {
+            List<Position> positions = employeeService.savePositions(positionsRequests);
+            return "Positions created " + positions.size();
+        }catch(DataIntegrityViolationException d){
+            logger.error("Positions not created correctly");
+            logger.error(d.getMessage());
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Positions not created correctly", d);
+        }
+    }
+
+    @GetMapping("listPositions")
+    public List<PositionPayload> listPositions(){
+        List<PositionPayload> positions = employeeService.listPositions();
+        logger.info("Positions found " + positions.size());
+        return positions;
+    }
+
+    @GetMapping("listPositionsInfo")
+    public List<PositionInfoPayload> listPositionsInfo(){
+        List<PositionInfoPayload> positionsInfo = employeeService.listPositionsInfo();
+        logger.info("Positions info found " + positionsInfo.size());
+        return positionsInfo;
     }
 
 }
