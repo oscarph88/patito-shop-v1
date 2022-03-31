@@ -11,10 +11,9 @@ import lombok.NoArgsConstructor;
 public class PositionInfoPayload {
 
     private String corporateEmail;
-    private Integer oldPosition;
-    private String oldPositionDesc;
-    private Integer currentPosition;
-    private String currentPositionDesc;
+    private PositionPayload oldPosition;
+    private PositionPayload currentPosition;
     private Double oldSalary;
     private Double currentSalary;
+    private Boolean active;
 }

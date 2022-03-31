@@ -10,16 +10,19 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table
+@NamedQuery(name="PositionInfo.findActivePositions", query="SELECT pi FROM PositionInfo pi where pi.active=:active")
 public class PositionInfo {
     @Id
     @Column(nullable = false,length = 60)
     private String corporateEmail;
-    @Column
-    private Integer oldPosition;
-    @Column
-    private Integer currentPosition;
+    @ManyToOne(optional = true)
+    private Position oldPosition;
+    @ManyToOne(optional = true)
+    private Position currentPosition;
     @Column
     private Double oldSalary;
     @Column
     private Double currentSalary;
+    @Column
+    private Boolean active;
 }

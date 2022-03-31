@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table
+@NamedQuery(name="Employee.findActiveEmployees", query="SELECT e FROM Employee e where e.active=:active")
 public class Employee {
     @Id
     @SequenceGenerator(name = "employee_sequence", sequenceName = "employee_sequence", allocationSize = 1)

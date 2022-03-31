@@ -1,11 +1,10 @@
 package com.oscar.patito.api;
 
 import com.oscar.patito.model.Employee;
-import com.oscar.patito.model.Position;
 import com.oscar.patito.payload.EmployeePayload;
 import com.oscar.patito.payload.PositionInfoPayload;
-import com.oscar.patito.payload.PositionPayload;
 import com.oscar.patito.service.EmployeeService;
+import com.oscar.patito.service.PositionService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,8 @@ public class PatitoRestApi {
 
     @Autowired
     EmployeeService employeeService;
+    @Autowired
+    PositionService positionService;
 
     @GetMapping("printTest")
     public String printTest() {
@@ -44,24 +45,16 @@ public class PatitoRestApi {
         }
     }
 
-    @PostMapping("loadEmployees")
-    public String loadEmployees(@RequestBody List<EmployeePayload> employeeRequests){
-        try {
-            List<Employee> employees = employeeService.saveEmployeeAll(employeeRequests);
-            return "Entries created " + employees.size();
-        }catch(DataIntegrityViolationException d){
-            logger.error("Employees not created correctly");
-            logger.error(d.getMessage());
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Employees not created correctly", d);
-        }
-    }
-
     @GetMapping("listEmployees")
     public List<EmployeePayload> listEmployees(){
         List<EmployeePayload> employees = employeeService.listEmployees();
         logger.info("Employees found " + employees.size());
-        return employees;
+        if(employees.size()>0) {
+            return employees;
+        }else{
+            logger.info("No employees found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No employees found");
+        }
     }
 
     @GetMapping("listEmployee")
@@ -93,7 +86,7 @@ public class PatitoRestApi {
     }
 
     @DeleteMapping("deleteEmployee")
-    public String DeleteEmployee(@RequestParam("id") Integer id){
+    public String deleteEmployee(@RequestParam("id") Integer id){
         try {
             employeeService.deleteEmployee(id);
             logger.info("Employee deleted with id "+id);
@@ -107,31 +100,32 @@ public class PatitoRestApi {
 
     }
 
-    @PostMapping("loadPositions")
-    public String loadPositions(@RequestBody List<PositionPayload> positionsRequests){
-        try {
-            List<Position> positions = employeeService.savePositions(positionsRequests);
-            return "Positions created " + positions.size();
-        }catch(DataIntegrityViolationException d){
-            logger.error("Positions not created correctly");
-            logger.error(d.getMessage());
+    @PatchMapping("softDeleteEmployee")
+    public String softDeleteEmployee(@RequestParam("id") Integer id){
+        Employee employeeDeleted = employeeService.softDeleteEmployee(id);
+        if(employeeDeleted!=null) {
+            logger.info("Employee deleted with id "+id);
+            return "Employee deleted with id "+id;
+        }else{
+            logger.error("Employee not deleted correctly for id "+id );
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Positions not created correctly", d);
+                    HttpStatus.BAD_REQUEST, "Employee not deleted correctly for id "+id);
         }
-    }
 
-    @GetMapping("listPositions")
-    public List<PositionPayload> listPositions(){
-        List<PositionPayload> positions = employeeService.listPositions();
-        logger.info("Positions found " + positions.size());
-        return positions;
     }
 
     @GetMapping("listPositionsInfo")
-    public List<PositionInfoPayload> listPositionsInfo(){
-        List<PositionInfoPayload> positionsInfo = employeeService.listPositionsInfo();
+    public List<PositionInfoPayload> listPositionsInfo() {
+        List<PositionInfoPayload> positionsInfo = positionService.listPositionsInfo();
         logger.info("Positions info found " + positionsInfo.size());
-        return positionsInfo;
+        long n = positionsInfo.stream().distinct().count();
+        logger.info("N " + n);
+        if (positionsInfo.size() > 0) {
+            return positionsInfo;
+        } else {
+            logger.info("No positions info found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions info found");
+        }
     }
 
 }
