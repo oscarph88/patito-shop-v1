@@ -55,6 +55,7 @@ public class PositionHelper {
         pip.setCurrentPosition(p.getCurrentPosition()!=null?generatePositionPayload(p.getCurrentPosition()):null);
         pip.setOldSalary(p.getOldSalary());
         pip.setCurrentSalary(p.getCurrentSalary());
+        pip.setActive(p.getActive());
         return pip;
     }
 

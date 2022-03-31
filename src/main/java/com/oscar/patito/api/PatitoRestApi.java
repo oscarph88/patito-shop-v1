@@ -3,6 +3,7 @@ package com.oscar.patito.api;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.payload.EmployeePayload;
 import com.oscar.patito.payload.PositionInfoPayload;
+import com.oscar.patito.payload.PositionPayload;
 import com.oscar.patito.service.EmployeeService;
 import com.oscar.patito.service.PositionService;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/patito/admin")
@@ -118,13 +122,30 @@ public class PatitoRestApi {
     public List<PositionInfoPayload> listPositionsInfo() {
         List<PositionInfoPayload> positionsInfo = positionService.listPositionsInfo();
         logger.info("Positions info found " + positionsInfo.size());
-        long n = positionsInfo.stream().distinct().count();
-        logger.info("N " + n);
         if (positionsInfo.size() > 0) {
             return positionsInfo;
         } else {
             logger.info("No positions info found");
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions info found");
+        }
+    }
+
+    @GetMapping("listEmployeesInPositions")
+    public Map<String, Long>listEmployeesInPositions() {
+        List<PositionInfoPayload> positionsInfo = positionService.listPositionsInfo();
+        List<PositionPayload> currentPositions= new ArrayList<>();
+        logger.info("Positions info found " + positionsInfo.size());
+        if (positionsInfo.size() > 0) {
+            for(PositionInfoPayload pip: positionsInfo){
+                    currentPositions.add(pip.getCurrentPosition());
+                }
+            logger.info("Current positions assigned to employees " + currentPositions.stream().distinct().count());
+            Map<String, Long> countForPosition = currentPositions.stream()
+                    .collect(Collectors.groupingBy(PositionPayload::getName, Collectors.counting()));
+            return countForPosition;
+            }else {
+            logger.info("No current positions info found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No current positions info found");
         }
     }
 

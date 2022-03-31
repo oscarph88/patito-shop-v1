@@ -33,6 +33,7 @@ public class EmployeeService {
     private PositionHelper ph = new PositionHelper();
 
     public Employee saveEmployee(EmployeePayload emp)throws DataIntegrityViolationException {
+        emp.getPosition().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPosition().getCurrentPosition().getId())));
         Employee employee= eh.generateEmployee(emp);
         logger.info("Saving employee "+emp.getFirstName());
         return employeeRepository.save(employee);
@@ -41,6 +42,7 @@ public class EmployeeService {
     public List<Employee> saveEmployeeAll(List<EmployeePayload> employees)throws DataIntegrityViolationException {
         List<Employee> empSaved= new ArrayList<>();
         for(EmployeePayload emp: employees) {
+            emp.getPosition().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPosition().getCurrentPosition().getId())));
             Employee employee= eh.generateEmployee(emp);
             logger.info("Saving employee "+emp.getFirstName());
             empSaved.add(employeeRepository.save(employee));
