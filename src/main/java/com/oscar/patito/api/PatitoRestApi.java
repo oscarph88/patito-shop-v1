@@ -1,5 +1,7 @@
 package com.oscar.patito.api;
 
+import com.oscar.patito.enums.SalaryRangeEnum;
+import com.oscar.patito.helper.EmployeeHelper;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.payload.EmployeePayload;
 import com.oscar.patito.payload.PositionInfoPayload;
@@ -30,6 +32,8 @@ public class PatitoRestApi {
     EmployeeService employeeService;
     @Autowired
     PositionService positionService;
+
+    EmployeeHelper empHelper= new EmployeeHelper();
 
     @GetMapping("printTest")
     public String printTest() {
@@ -130,8 +134,8 @@ public class PatitoRestApi {
         }
     }
 
-    @GetMapping("listEmployeesInPositions")
-    public Map<String, Long>listEmployeesInPositions() {
+    @GetMapping("listEmployeesPositions")
+    public Map<String, Long>listEmployeesPositions() {
         List<PositionInfoPayload> positionsInfo = positionService.listPositionsInfo();
         List<PositionPayload> currentPositions= new ArrayList<>();
         logger.info("Positions info found " + positionsInfo.size());
@@ -149,4 +153,58 @@ public class PatitoRestApi {
         }
     }
 
+    @GetMapping("graphGenders")
+    public Map<String, String>graphGenders() {
+
+        List<EmployeePayload> employees = employeeService.listEmployees();
+        logger.info("Employees found " + employees.size());
+        if(employees.size()>0) {
+            Map<String, Long> countForGender = employees.stream()
+                    .collect(Collectors.groupingBy(EmployeePayload::getGender, (Collectors.counting())));
+            Map<String, String> percentForGender = countForGender.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            entry -> empHelper.calculatePercentage(entry.getValue(), employees.size())+" %"));
+            return percentForGender;
+        }else{
+            logger.info("No genders found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No genders found");
+        }
+    }
+
+    @GetMapping("graphSalary")
+    public Map<SalaryRangeEnum,String>graphSalary() {
+
+        List<PositionInfoPayload> positionsInfo = positionService.listPositionsInfo();
+
+        //List<EmployeePayload> employees = employeeService.listEmployees();
+        logger.info("Positions found " + positionsInfo.size());
+        if(positionsInfo.size()>0) {
+            Map<SalaryRangeEnum,List<PositionInfoPayload>> positionsRange = positionsInfo.stream()
+                    .collect(Collectors.groupingBy(EmployeeHelper::getRange));
+            Map<SalaryRangeEnum, String> percentForSalary = positionsRange.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            entry -> empHelper.calculatePercentage(entry.getValue().size(), positionsInfo.size())+" %"));
+            return percentForSalary;
+        }else{
+            logger.info("No positions found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions found");
+        }
+    }
+
+    @GetMapping("reportEmployees")
+    public List<EmployeePayload> reportEmployees(@RequestParam(required = false) String country, @RequestParam(required = false) String state){
+        List<EmployeePayload> employees;
+        if(country==null && state ==null) {
+            employees = employeeService.listEmployees();
+        }else{
+            employees = employeeService.reportEmployees(country, state);
+        }
+        logger.info("Employees found " + employees.size());
+        if(employees.size()>0) {
+            return employees;
+        }else{
+            logger.info("No employees found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No employees found");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.oscar.patito.helper;
 
+import com.oscar.patito.enums.SalaryRangeEnum;
 import com.oscar.patito.model.Contact;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.model.PositionInfo;
@@ -106,5 +107,23 @@ public class EmployeeHelper {
                 c.getAddress(),c.getCity(), c.getState(), c.getCountry(), c.getBirthday());
     }
 
+    public static SalaryRangeEnum getRange(PositionInfoPayload pip) {
+        if (pip.getCurrentSalary() > 300000.00) {
+            return SalaryRangeEnum.UPPER;
+        }else {
+            if (pip.getCurrentSalary() > 100000.00 && pip.getCurrentSalary() < 300000.00) {
+                return SalaryRangeEnum.MIDDLE;
+            }else{
+                return SalaryRangeEnum.LOWER;
+            }
+        }
+    }
+
+    public double calculatePercentage(long num, int total){
+        double result = (double)num/(double)total;
+        result *=100;
+        logger.info("Percentage calculated "+result);
+        return result;
+    }
 
 }

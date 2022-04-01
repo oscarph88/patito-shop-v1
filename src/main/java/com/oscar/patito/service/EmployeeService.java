@@ -111,4 +111,22 @@ public class EmployeeService {
         return position.map(value -> value).orElse(null);
     }
 
+    public List<EmployeePayload> reportEmployees(String country, String state){
+        List<Employee> employees;
+        if(country!=null && state!=null) {
+            employees = employeeRepository.findAllActiveCountryState(true, country, state);
+        }else{
+            if(country!=null){
+                employees = employeeRepository.findAllActiveCountry(true, country);
+            }else{
+                employees = employeeRepository.findAllActiveState(true, state);
+            }
+        }
+        logger.info("Employee list completed for country "+country+" and state "+state);
+        return employees.stream().map(e -> new EmployeePayload(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+                        e.getLastName(), e.getGender(), e.getActive(),
+                        eh.generateContactPayload(e.getContact()),
+                        ph.generatePositionInfoPayload(e.getPositionInfo())))
+                .collect(Collectors.toList());
+    }
 }

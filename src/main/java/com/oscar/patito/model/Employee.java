@@ -11,6 +11,12 @@ import javax.persistence.*;
 @Entity
 @Table
 @NamedQuery(name="Employee.findActiveEmployees", query="SELECT e FROM Employee e where e.active=:active")
+@NamedQuery(name="Employee.findActiveEmployeesCountryState",
+            query="SELECT e FROM Employee e where e.active=:active and e.contact.country=:country and e.contact.state=:state")
+@NamedQuery(name="Employee.findActiveEmployeesCountry",
+        query="SELECT e FROM Employee e where e.active=:active and e.contact.country=:country")
+@NamedQuery(name="Employee.findActiveEmployeesState",
+        query="SELECT e FROM Employee e where e.active=:active and e.contact.state=:state")
 public class Employee {
     @Id
     @SequenceGenerator(name = "employee_sequence", sequenceName = "employee_sequence", allocationSize = 1)
