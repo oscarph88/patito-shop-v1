@@ -18,4 +18,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     List<Employee> findAllActiveCountry(@Param("active") Boolean a, @Param("country") String c);
     @Query(name = "Employee.findActiveEmployeesState")
     List<Employee> findAllActiveState(@Param("active") Boolean a, @Param("state") String s);
+    @Query(name = "Employee.normal.findActiveEmployee")
+    Employee findActiveEmployee(@Param("active") Boolean a, @Param("id") int i);
 }

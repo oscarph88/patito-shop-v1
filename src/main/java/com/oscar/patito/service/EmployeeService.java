@@ -61,9 +61,23 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
+    public List<EmployeePayload> filterEmployees(String firstname, String lastname, String position, Boolean all){
+        List<Employee> employees =  all ? employeeRepository.findAll():employeeRepository.findAllActive(true);
+
+        logger.info("Employee list completed");
+        return employees.stream()
+                .filter(t -> t.getFirstName().toLowerCase().contains(firstname!=null?firstname.toLowerCase():"") &&
+                        t.getLastName().toLowerCase().contains(lastname!=null?lastname.toLowerCase():"") &&
+                        t.getPositionInfo().getCurrentPosition().getName().toLowerCase().contains(position!=null?position.toLowerCase():""))
+         .collect(Collectors.toList()).stream().map(e -> new EmployeePayload(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+                        e.getLastName(), e.getGender(), e.getActive(),
+                        eh.generateContactPayload(e.getContact()),
+                        ph.generatePositionInfoPayload(e.getPositionInfo())))
+                .collect(Collectors.toList());
+    }
 
 
-    public EmployeePayload listEmployee(Integer id){
+    public EmployeePayload getEmployee(Integer id){
         logger.info("Searching for employee "+id);
         Optional<Employee> employee = employeeRepository.findById(id);
         return employee.map(value -> eh.generateEmployeePayload(value)).orElse(null);

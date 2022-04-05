@@ -65,9 +65,9 @@ public class PatitoRestApi {
         }
     }
 
-    @GetMapping("listEmployee")
-    public EmployeePayload listEmployee(@RequestParam("id") Integer id){
-        EmployeePayload employee = employeeService.listEmployee(id);
+    @GetMapping("getEmployee")
+    public EmployeePayload getEmployee(@RequestParam("id") Integer id){
+        EmployeePayload employee = employeeService.getEmployee(id);
             if(employee!=null) {
                 logger.info("Employee found");
                 return employee;
@@ -199,6 +199,22 @@ public class PatitoRestApi {
         }else{
             employees = employeeService.reportEmployees(country, state);
         }
+        logger.info("Employees found " + employees.size());
+        if(employees.size()>0) {
+            return employees;
+        }else{
+            logger.info("No employees found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No employees found");
+        }
+    }
+
+    @GetMapping("filterEmployees")
+    public List<EmployeePayload> filterEmployees(@RequestParam(required = false) String firstName,
+                                                 @RequestParam(required = false) String lastName,
+                                                 @RequestParam(required = false) String position,
+                                                 @RequestParam(required = false) boolean deleted){
+        logger.info("Searching for " + firstName +" , "+lastName +" , "+ position +" , "+ deleted);
+        List<EmployeePayload> employees = employeeService.filterEmployees(firstName, lastName, position, deleted);
         logger.info("Employees found " + employees.size());
         if(employees.size()>0) {
             return employees;
