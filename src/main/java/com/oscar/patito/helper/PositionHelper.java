@@ -2,8 +2,8 @@ package com.oscar.patito.helper;
 
 import com.oscar.patito.model.Position;
 import com.oscar.patito.model.PositionInfo;
-import com.oscar.patito.payload.PositionInfoPayload;
-import com.oscar.patito.payload.PositionPayload;
+import com.oscar.patito.dto.PositionInfoDTO;
+import com.oscar.patito.dto.PositionDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,7 +11,7 @@ public class PositionHelper {
 
     private static final Logger logger = LogManager.getLogger(PositionHelper.class);
 
-    public Position generatePosition(PositionPayload pp) {
+    public Position generatePosition(PositionDTO pp) {
         if(pp!=null) {
             Position position = new Position();
             position.setId(pp.getId());
@@ -24,9 +24,9 @@ public class PositionHelper {
         }
     }
 
-    public PositionPayload generatePositionPayload(Position pp) {
+    public PositionDTO generatePositionPayload(Position pp) {
         if(pp!=null){
-        PositionPayload position = new PositionPayload();
+        PositionDTO position = new PositionDTO();
         position.setId(pp.getId());
         position.setName(pp.getName());
         position.setDescription(pp.getDescription());
@@ -48,8 +48,8 @@ public class PositionHelper {
         return pi;
     }*/
 
-    public PositionInfoPayload generatePositionInfoPayload(PositionInfo p){
-        PositionInfoPayload pip= new PositionInfoPayload();
+    public PositionInfoDTO generatePositionInfoPayload(PositionInfo p){
+        PositionInfoDTO pip= new PositionInfoDTO();
         pip.setCorporateEmail(p.getCorporateEmail());
         pip.setOldPosition(p.getOldPosition()!=null?generatePositionPayload(p.getOldPosition()):null);
         pip.setCurrentPosition(p.getCurrentPosition()!=null?generatePositionPayload(p.getCurrentPosition()):null);

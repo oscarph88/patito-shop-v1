@@ -20,6 +20,16 @@ import javax.persistence.*;
         query="SELECT e FROM Employee e where e.active=:active and e.contact.state=:state")
 @NamedQuery(name="Employee.normal.findActiveEmployee",
         query="SELECT e FROM Employee e where e.active=:active and e.id=:id")
+@NamedQuery(name="Employee.findTodayEmployeeBirthday",
+        query="SELECT e FROM Employee e where e.active=:active and e.contact.birthday>=:today and e.contact.birthday<:tomorrow")
+@NamedQuery(name="Employee.findTodayEmployeeBirthday2",
+        query="SELECT e FROM Employee e where e.active=:active and day(e.contact.birthday) =day(:today) and month(e.contact.birthday) =month(:today)")
+@NamedQuery(name="Employee.findNextWeekEmployeeBirthday",
+        query="SELECT e FROM Employee e where e.active=:active and e.contact.birthday>=:startDate and e.contact.birthday<:endDate")
+@NamedQuery(name="Employee.findNextWeekEmployeeBirthday2",
+        query="SELECT e FROM Employee e where e.active=:active " +
+                "and month(e.contact.birthday) >=month(:startDate) and  month(e.contact.birthday) <=month(:endDate) " +
+                "and day(e.contact.birthday) >= day(:startDate) and day(e.contact.birthday) <=day(:endDate)")
 public class Employee {
     @Id
     @SequenceGenerator(name = "employee_sequence", sequenceName = "employee_sequence", allocationSize = 1)

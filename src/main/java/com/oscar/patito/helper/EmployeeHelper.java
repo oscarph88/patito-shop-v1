@@ -4,18 +4,21 @@ import com.oscar.patito.enums.SalaryRangeEnum;
 import com.oscar.patito.model.Contact;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.model.PositionInfo;
-import com.oscar.patito.payload.ContactPayload;
-import com.oscar.patito.payload.EmployeePayload;
-import com.oscar.patito.payload.PositionInfoPayload;
+import com.oscar.patito.dto.ContactDTO;
+import com.oscar.patito.dto.EmployeeDTO;
+import com.oscar.patito.dto.PositionInfoDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class EmployeeHelper {
 
     private static final Logger logger = LogManager.getLogger(EmployeeHelper.class);
     private PositionHelper ph = new PositionHelper();
 
-    public Employee generateEmployee(EmployeePayload ep){
+    public Employee generateEmployee(EmployeeDTO ep){
         Employee employee = new Employee();
         Contact contact= new Contact();
         PositionInfo positionInfo = new PositionInfo();
@@ -35,11 +38,11 @@ public class EmployeeHelper {
         contact.setBirthday(ep.getContact().getBirthday());
         positionInfo.setCorporateEmail(ep.getCorporateEmail());
         positionInfo.setActive(true);
-        if (ep.getPosition() != null) {
-            positionInfo.setOldPosition(ph.generatePosition(ep.getPosition().getOldPosition()));
-            positionInfo.setCurrentPosition(ph.generatePosition(ep.getPosition().getCurrentPosition()));
-            positionInfo.setOldSalary(ep.getPosition().getOldSalary());
-            positionInfo.setCurrentSalary(ep.getPosition().getCurrentSalary());
+        if (ep.getPositionInfo() != null) {
+            positionInfo.setOldPosition(ph.generatePosition(ep.getPositionInfo().getOldPosition()));
+            positionInfo.setCurrentPosition(ph.generatePosition(ep.getPositionInfo().getCurrentPosition()));
+            positionInfo.setOldSalary(ep.getPositionInfo().getOldSalary());
+            positionInfo.setCurrentSalary(ep.getPositionInfo().getCurrentSalary());
         }
         employee.setContact(contact);
         employee.setPositionInfo(positionInfo);
@@ -48,16 +51,16 @@ public class EmployeeHelper {
         return employee;
     }
 
-    public EmployeePayload generateEmployeePayload(Employee em){
-        EmployeePayload employeePayload = new EmployeePayload();
-        ContactPayload contact= new ContactPayload();
-        PositionInfoPayload positionInfo = new PositionInfoPayload();
-        employeePayload.setId(em.getId());
-        employeePayload.setCorporateEmail(em.getCorporateEmail());
-        employeePayload.setFirstName(em.getFirstName());
-        employeePayload.setLastName(em.getLastName());
-        employeePayload.setGender(em.getGender());
-        employeePayload.setActive(em.getActive());
+    public EmployeeDTO generateEmployeePayload(Employee em){
+        EmployeeDTO employeeDTO = new EmployeeDTO();
+        ContactDTO contact= new ContactDTO();
+        PositionInfoDTO positionInfo = new PositionInfoDTO();
+        employeeDTO.setId(em.getId());
+        employeeDTO.setCorporateEmail(em.getCorporateEmail());
+        employeeDTO.setFirstName(em.getFirstName());
+        employeeDTO.setLastName(em.getLastName());
+        employeeDTO.setGender(em.getGender());
+        employeeDTO.setActive(em.getActive());
         contact.setCorporateEmail(em.getCorporateEmail());
         contact.setPersonalEmail(em.getContact().getPersonalEmail());
         contact.setPhoneNumber(em.getContact().getPhoneNumber());
@@ -72,13 +75,13 @@ public class EmployeeHelper {
         positionInfo.setOldSalary(em.getPositionInfo().getOldSalary());
         positionInfo.setCurrentSalary(em.getPositionInfo().getCurrentSalary());
         positionInfo.setActive(em.getPositionInfo().getActive());
-        employeePayload.setContact(contact);
-        employeePayload.setPosition(positionInfo);
+        employeeDTO.setContact(contact);
+        employeeDTO.setPositionInfo(positionInfo);
         logger.info("Employee object created");
-        return employeePayload;
+        return employeeDTO;
     }
 
-    public Employee generateEmployeeToUpdate(Employee employee, EmployeePayload ep) {
+    public Employee generateEmployeeToUpdate(Employee employee, EmployeeDTO ep) {
         Contact contact = employee.getContact();
         PositionInfo positionInfo = employee.getPositionInfo();
         employee.setFirstName(ep.getFirstName() != null ? ep.getFirstName() : employee.getFirstName());
@@ -94,20 +97,37 @@ public class EmployeeHelper {
         contact.setBirthday(ep.getContact().getBirthday() != null ? ep.getContact().getBirthday() : contact.getBirthday());
         positionInfo.setOldPosition(employee.getPositionInfo().getOldPosition() != null ? employee.getPositionInfo().getOldPosition() : positionInfo.getOldPosition());
         positionInfo.setCurrentPosition(employee.getPositionInfo().getCurrentPosition() != null ? employee.getPositionInfo().getCurrentPosition() : positionInfo.getCurrentPosition());
-        positionInfo.setOldSalary(ep.getPosition().getOldSalary() != null ? ep.getPosition().getOldSalary() : positionInfo.getOldSalary());
-        positionInfo.setCurrentSalary(ep.getPosition().getCurrentSalary() != null ? ep.getPosition().getCurrentSalary() : positionInfo.getCurrentSalary());
+        positionInfo.setOldSalary(ep.getPositionInfo().getOldSalary() != null ? ep.getPositionInfo().getOldSalary() : positionInfo.getOldSalary());
+        positionInfo.setCurrentSalary(ep.getPositionInfo().getCurrentSalary() != null ? ep.getPositionInfo().getCurrentSalary() : positionInfo.getCurrentSalary());
         employee.setContact(contact);
         employee.setPositionInfo(positionInfo);
         logger.info("Employee object updated");
         return employee;
     }
 
-    public ContactPayload generateContactPayload(Contact c){
-        return new ContactPayload(c.getCorporateEmail(), c.getPersonalEmail(), c.getPhoneNumber(),
+    public Employee generateEmployeeToAssign(Employee employee, EmployeeDTO ep) {
+        //Contact contact = employee.getContact();
+        PositionInfo positionInfo = employee.getPositionInfo();
+        //employee.setFirstName(ep.getFirstName() != null ? ep.getFirstName() : employee.getFirstName());
+        //employee.setLastName(ep.getLastName() != null ? ep.getLastName() : employee.getLastName());
+        //employee.setGender(ep.getGender() != null ? ep.getGender() : employee.getGender());
+        //employee.setActive(ep.getActive() != null ? ep.getActive() : employee.getActive());
+        positionInfo.setOldPosition(employee.getPositionInfo().getOldPosition() != null ? employee.getPositionInfo().getOldPosition() : positionInfo.getOldPosition());
+        positionInfo.setCurrentPosition(employee.getPositionInfo().getCurrentPosition() != null ? employee.getPositionInfo().getCurrentPosition() : positionInfo.getCurrentPosition());
+        positionInfo.setOldSalary(ep.getPositionInfo().getOldSalary() != null ? ep.getPositionInfo().getOldSalary() : positionInfo.getOldSalary());
+        positionInfo.setCurrentSalary(ep.getPositionInfo().getCurrentSalary() != null ? ep.getPositionInfo().getCurrentSalary() : positionInfo.getCurrentSalary());
+        //employee.setContact(contact);
+        employee.setPositionInfo(positionInfo);
+        logger.info("Employee object to assign updated");
+        return employee;
+    }
+
+    public ContactDTO generateContactPayload(Contact c){
+        return new ContactDTO(c.getCorporateEmail(), c.getPersonalEmail(), c.getPhoneNumber(),
                 c.getAddress(),c.getCity(), c.getState(), c.getCountry(), c.getBirthday());
     }
 
-    public static SalaryRangeEnum getRange(PositionInfoPayload pip) {
+    public static SalaryRangeEnum getRange(PositionInfoDTO pip) {
         if (pip.getCurrentSalary() > 300000.00) {
             return SalaryRangeEnum.UPPER;
         }else {
@@ -123,7 +143,14 @@ public class EmployeeHelper {
         double result = (double)num/(double)total;
         result *=100;
         logger.info("Percentage calculated "+result);
-        return result;
+        return round(result, 2);
     }
 
+    public double round(double value, int places) {
+        //if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 }

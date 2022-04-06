@@ -1,9 +1,8 @@
 package com.oscar.patito.api;
 
-import com.oscar.patito.model.Employee;
+import com.oscar.patito.dto.EmployeeDTO;
+import com.oscar.patito.dto.PositionDTO;
 import com.oscar.patito.model.Position;
-import com.oscar.patito.payload.EmployeePayload;
-import com.oscar.patito.payload.PositionPayload;
 import com.oscar.patito.service.EmployeeService;
 import com.oscar.patito.service.PositionService;
 import org.apache.logging.log4j.LogManager;
@@ -17,25 +16,20 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/patito/mgmt")
-public class DataMgmtApi {
+@RequestMapping("api/patito/data")
+public class DataApi {
 
-    private static final Logger logger = LogManager.getLogger(DataMgmtApi.class);
+    private static final Logger logger = LogManager.getLogger(DataApi.class);
 
     @Autowired
     EmployeeService employeeService;
     @Autowired
     PositionService positionService;
 
-    @GetMapping("printTest")
-    public String printTest() {
-        return "Hello!";
-    }
-
-    @PostMapping("loadEmployees")
-    public String loadEmployees(@RequestBody List<EmployeePayload> employeeRequests){
+    @PostMapping("employees/load")
+    public String loadEmployees(@RequestBody List<EmployeeDTO> employeeRequests){
         try {
-            List<Employee> employees = employeeService.saveEmployeeAll(employeeRequests);
+            List<EmployeeDTO> employees = employeeService.saveEmployeeAll(employeeRequests);
             return "Entries created " + employees.size();
         }catch(DataIntegrityViolationException d){
             logger.error("Employees not created correctly");
@@ -45,8 +39,8 @@ public class DataMgmtApi {
         }
     }
 
-    @PostMapping("loadPositions")
-    public String loadPositions(@RequestBody List<PositionPayload> positionsRequests){
+    @PostMapping("positions/load")
+    public String loadPositions(@RequestBody List<PositionDTO> positionsRequests){
         try {
             List<Position> positions = positionService.savePositions(positionsRequests);
             return "Positions created " + positions.size();
@@ -58,9 +52,9 @@ public class DataMgmtApi {
         }
     }
 
-    @GetMapping("listPositions")
-    public List<PositionPayload> listPositions(){
-        List<PositionPayload> positions = positionService.listPositions();
+    @GetMapping("positions")
+    public List<PositionDTO> listPositions(){
+        List<PositionDTO> positions = positionService.listPositions();
         logger.info("Positions found " + positions.size());
         if(positions.size()>0) {
             return positions;

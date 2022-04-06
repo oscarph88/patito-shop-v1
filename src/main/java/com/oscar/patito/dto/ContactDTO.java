@@ -1,15 +1,15 @@
-package com.oscar.patito.payload;
+package com.oscar.patito.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContactPayload {
+public class ContactDTO {
 
     private String corporateEmail;
     private String personalEmail;
@@ -18,5 +18,5 @@ public class ContactPayload {
     private String city;
     private String state;
     private String country;
-    private Date birthday;
+    private LocalDateTime birthday;
 }

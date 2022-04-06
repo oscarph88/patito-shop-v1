@@ -1,4 +1,4 @@
-package com.oscar.patito.payload;
+package com.oscar.patito.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PositionPayload {
+public class PositionDTO {
 
     private Integer id;
     private String name;

@@ -1,10 +1,11 @@
 package com.oscar.patito.service;
 
+import com.oscar.patito.dto.EmployeeDTO;
+import com.oscar.patito.dto.PositionInfoDTO;
 import com.oscar.patito.helper.EmployeeHelper;
 import com.oscar.patito.helper.PositionHelper;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.model.Position;
-import com.oscar.patito.payload.EmployeePayload;
 import com.oscar.patito.repository.EmployeeRepository;
 import com.oscar.patito.repository.PositionsRepository;
 import org.apache.logging.log4j.LogManager;
@@ -32,36 +33,58 @@ public class EmployeeService {
     private EmployeeHelper eh= new EmployeeHelper();
     private PositionHelper ph = new PositionHelper();
 
-    public Employee saveEmployee(EmployeePayload emp)throws DataIntegrityViolationException {
-        emp.getPosition().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPosition().getCurrentPosition().getId())));
+
+    public EmployeeDTO saveEmployee(EmployeeDTO emp)throws DataIntegrityViolationException {
+        if(emp.getPositionInfo()!=null) {
+            emp.getPositionInfo().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPositionInfo().getCurrentPosition().getId())));
+        }else{
+            PositionInfoDTO positionInfoDto= new PositionInfoDTO();
+            positionInfoDto.setCurrentPosition(ph.generatePositionPayload(getPosition(1)));
+            positionInfoDto.setCurrentSalary(0.00);
+            emp.setPositionInfo(positionInfoDto);
+        }
+        emp.setActive(true);
         Employee employee= eh.generateEmployee(emp);
         logger.info("Saving employee "+emp.getFirstName());
-        return employeeRepository.save(employee);
+        return eh.generateEmployeePayload(employeeRepository.save(employee));
     }
 
-    public List<Employee> saveEmployeeAll(List<EmployeePayload> employees)throws DataIntegrityViolationException {
+    public List<EmployeeDTO> saveEmployeeAll(List<EmployeeDTO> employees)throws DataIntegrityViolationException {
         List<Employee> empSaved= new ArrayList<>();
-        for(EmployeePayload emp: employees) {
-            emp.getPosition().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPosition().getCurrentPosition().getId())));
+        for(EmployeeDTO emp: employees) {
+            if(emp.getPositionInfo()!=null) {
+                emp.getPositionInfo().setCurrentPosition(ph.generatePositionPayload(getPosition(emp.getPositionInfo().getCurrentPosition().getId())));
+            }else{
+                PositionInfoDTO positionInfoDto= new PositionInfoDTO();
+                positionInfoDto.setCurrentPosition(ph.generatePositionPayload(getPosition(1)));
+                positionInfoDto.setCurrentSalary(0.00);
+                emp.setPositionInfo(positionInfoDto);
+            }
+            emp.setActive(true);
             Employee employee= eh.generateEmployee(emp);
             logger.info("Saving employee "+emp.getFirstName());
             empSaved.add(employeeRepository.save(employee));
         }
-        return empSaved;
+        //return empSaved;
+        return empSaved.stream().map(e -> new EmployeeDTO(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+                        e.getLastName(), e.getGender(), e.getActive(),
+                        eh.generateContactPayload(e.getContact()),
+                        ph.generatePositionInfoPayload(e.getPositionInfo())))
+                .collect(Collectors.toList());
     }
 
-    public List<EmployeePayload> listEmployees(){
+    public List<EmployeeDTO> listEmployees(){
         //List<Employee> employees = employeeRepository.findAll();
         List<Employee> employees = employeeRepository.findAllActive(true);
         logger.info("Employee list completed");
-        return employees.stream().map(e -> new EmployeePayload(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+        return employees.stream().map(e -> new EmployeeDTO(e.getId(),e.getCorporateEmail(), e.getFirstName(),
                 e.getLastName(), e.getGender(), e.getActive(),
                 eh.generateContactPayload(e.getContact()),
                 ph.generatePositionInfoPayload(e.getPositionInfo())))
                 .collect(Collectors.toList());
     }
 
-    public List<EmployeePayload> filterEmployees(String firstname, String lastname, String position, Boolean all){
+    public List<EmployeeDTO> filterEmployees(String firstname, String lastname, String position, Boolean all){
         List<Employee> employees =  all ? employeeRepository.findAll():employeeRepository.findAllActive(true);
 
         logger.info("Employee list completed");
@@ -69,7 +92,7 @@ public class EmployeeService {
                 .filter(t -> t.getFirstName().toLowerCase().contains(firstname!=null?firstname.toLowerCase():"") &&
                         t.getLastName().toLowerCase().contains(lastname!=null?lastname.toLowerCase():"") &&
                         t.getPositionInfo().getCurrentPosition().getName().toLowerCase().contains(position!=null?position.toLowerCase():""))
-         .collect(Collectors.toList()).stream().map(e -> new EmployeePayload(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+         .collect(Collectors.toList()).stream().map(e -> new EmployeeDTO(e.getId(),e.getCorporateEmail(), e.getFirstName(),
                         e.getLastName(), e.getGender(), e.getActive(),
                         eh.generateContactPayload(e.getContact()),
                         ph.generatePositionInfoPayload(e.getPositionInfo())))
@@ -77,25 +100,25 @@ public class EmployeeService {
     }
 
 
-    public EmployeePayload getEmployee(Integer id){
+    public EmployeeDTO getEmployee(Integer id){
         logger.info("Searching for employee "+id);
         Optional<Employee> employee = employeeRepository.findById(id);
         return employee.map(value -> eh.generateEmployeePayload(value)).orElse(null);
     }
 
-    public Employee updateEmployee(EmployeePayload emp) throws DataIntegrityViolationException{
+    public EmployeeDTO updateEmployee(EmployeeDTO emp) throws DataIntegrityViolationException{
         Optional<Employee> optionalEmployee = employeeRepository.findById(emp.getId());
         if(optionalEmployee.isPresent()){
 
-            if(emp.getPosition().getOldPosition()!=null) {
-                optionalEmployee.get().getPositionInfo().setOldPosition(getPosition(emp.getPosition().getOldPosition().getId()));
+            if(emp.getPositionInfo().getOldPosition()!=null) {
+                optionalEmployee.get().getPositionInfo().setOldPosition(getPosition(emp.getPositionInfo().getOldPosition().getId()));
             }
-            if(emp.getPosition().getCurrentPosition()!=null) {
-                optionalEmployee.get().getPositionInfo().setCurrentPosition(getPosition(emp.getPosition().getCurrentPosition().getId()));
+            if(emp.getPositionInfo().getCurrentPosition()!=null) {
+                optionalEmployee.get().getPositionInfo().setCurrentPosition(getPosition(emp.getPositionInfo().getCurrentPosition().getId()));
             }
 
             Employee employee = eh.generateEmployeeToUpdate(optionalEmployee.get() , emp);
-            return employeeRepository.save(employee);
+            return eh.generateEmployeePayload(employeeRepository.save(employee));
         }else{
             logger.info("No results found for id "+emp.getId());
             throw new DataIntegrityViolationException("No results found for id "+emp.getId());
@@ -107,13 +130,33 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
     }
 
-    public Employee softDeleteEmployee(Integer id){
+    public EmployeeDTO assignEmployee(EmployeeDTO emp) throws DataIntegrityViolationException{
+        Optional<Employee> optionalEmployee = employeeRepository.findById(emp.getId());
+        if(optionalEmployee.isPresent()){
+
+            if(emp.getPositionInfo().getOldPosition()!=null) {
+                optionalEmployee.get().getPositionInfo().setOldPosition(getPosition(emp.getPositionInfo().getOldPosition().getId()));
+            }
+            if(emp.getPositionInfo().getCurrentPosition()!=null) {
+                optionalEmployee.get().getPositionInfo().setCurrentPosition(getPosition(emp.getPositionInfo().getCurrentPosition().getId()));
+            }
+
+            //Employee employee = eh.generateEmployeeToUpdate(optionalEmployee.get() , emp);
+            Employee employee = eh.generateEmployeeToAssign(optionalEmployee.get() , emp);
+            return eh.generateEmployeePayload(employeeRepository.save(employee));
+        }else{
+            logger.info("No results found for id "+emp.getId());
+            throw new DataIntegrityViolationException("No results found for id "+emp.getId());
+        }
+    }
+
+    public EmployeeDTO softDeleteEmployee(Integer id){
         logger.info("Searching for employee to delete: "+id);
         Optional<Employee> employee = employeeRepository.findById(id);
         if(employee.isPresent()){
             employee.get().setActive(false);
             employee.get().getPositionInfo().setActive(false);
-            return employeeRepository.save(employee.get());
+            return eh.generateEmployeePayload(employeeRepository.save(employee.get()));
         }else{
             return null;
         }
@@ -125,7 +168,7 @@ public class EmployeeService {
         return position.map(value -> value).orElse(null);
     }
 
-    public List<EmployeePayload> reportEmployees(String country, String state){
+    public List<EmployeeDTO> reportEmployees(String country, String state){
         List<Employee> employees;
         if(country!=null && state!=null) {
             employees = employeeRepository.findAllActiveCountryState(true, country, state);
@@ -137,7 +180,7 @@ public class EmployeeService {
             }
         }
         logger.info("Employee list completed for country "+country+" and state "+state);
-        return employees.stream().map(e -> new EmployeePayload(e.getId(),e.getCorporateEmail(), e.getFirstName(),
+        return employees.stream().map(e -> new EmployeeDTO(e.getId(),e.getCorporateEmail(), e.getFirstName(),
                         e.getLastName(), e.getGender(), e.getActive(),
                         eh.generateContactPayload(e.getContact()),
                         ph.generatePositionInfoPayload(e.getPositionInfo())))

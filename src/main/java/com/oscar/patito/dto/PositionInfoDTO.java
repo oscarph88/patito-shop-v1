@@ -1,6 +1,5 @@
-package com.oscar.patito.payload;
+package com.oscar.patito.dto;
 
-import com.oscar.patito.model.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PositionInfoPayload {
+public class PositionInfoDTO {
 
     private String corporateEmail;
-    private PositionPayload oldPosition;
-    private PositionPayload currentPosition;
+    private PositionDTO oldPosition;
+    private PositionDTO currentPosition;
     private Double oldSalary;
     private Double currentSalary;
     private Boolean active;
