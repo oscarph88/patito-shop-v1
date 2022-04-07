@@ -114,7 +114,7 @@ public class EmployeeHelper {
         //employee.setActive(ep.getActive() != null ? ep.getActive() : employee.getActive());
         positionInfo.setOldPosition(employee.getPositionInfo().getOldPosition() != null ? employee.getPositionInfo().getOldPosition() : positionInfo.getOldPosition());
         positionInfo.setCurrentPosition(employee.getPositionInfo().getCurrentPosition() != null ? employee.getPositionInfo().getCurrentPosition() : positionInfo.getCurrentPosition());
-        positionInfo.setOldSalary(ep.getPositionInfo().getOldSalary() != null ? ep.getPositionInfo().getOldSalary() : positionInfo.getOldSalary());
+        //positionInfo.setOldSalary(employee.getPositionInfo().getOldSalary() != null ? ep.getPositionInfo().getOldSalary() : positionInfo.getOldSalary());
         positionInfo.setCurrentSalary(ep.getPositionInfo().getCurrentSalary() != null ? ep.getPositionInfo().getCurrentSalary() : positionInfo.getCurrentSalary());
         //employee.setContact(contact);
         employee.setPositionInfo(positionInfo);

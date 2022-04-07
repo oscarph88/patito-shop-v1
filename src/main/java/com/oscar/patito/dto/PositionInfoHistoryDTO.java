@@ -9,14 +9,11 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ContactDTO {
+public class PositionInfoHistoryDTO {
 
+    private Integer id;
     private String corporateEmail;
-    private String personalEmail;
-    private String phoneNumber;
-    private String address;
-    private String city;
-    private String state;
-    private String country;
-    private LocalDateTime birthday;
+    private PositionInfoDTO positionInfo;
+    private LocalDateTime last_modified;
+    private Boolean current;
 }

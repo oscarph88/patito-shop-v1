@@ -6,7 +6,10 @@ import com.oscar.patito.helper.EmployeeHelper;
 import com.oscar.patito.helper.PositionHelper;
 import com.oscar.patito.model.Employee;
 import com.oscar.patito.model.Position;
+import com.oscar.patito.model.PositionInfo;
+import com.oscar.patito.model.PositionInfoHistory;
 import com.oscar.patito.repository.EmployeeRepository;
+import com.oscar.patito.repository.PositionInfoHistoryRepository;
 import com.oscar.patito.repository.PositionsRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +31,8 @@ public class EmployeeService {
     private EmployeeRepository employeeRepository;
     @Autowired
     private PositionsRepository positionRepository;
+    @Autowired
+    private PositionInfoHistoryRepository  positionInfoHistoryRepository;
 
 
     private static final Logger logger = LogManager.getLogger(EmployeeService.class);
@@ -134,16 +140,34 @@ public class EmployeeService {
         Optional<Employee> optionalEmployee = employeeRepository.findById(emp.getId());
         if(optionalEmployee.isPresent()){
 
-            if(emp.getPositionInfo().getOldPosition()!=null) {
+           /* if(emp.getPositionInfo().getOldPosition()!=null) {
                 optionalEmployee.get().getPositionInfo().setOldPosition(getPosition(emp.getPositionInfo().getOldPosition().getId()));
+            }*/
+            PositionInfoHistory pih = positionInfoHistoryRepository.findCurrentHistory(true, optionalEmployee.get().getCorporateEmail());
+            PositionInfo old= pih != null?pih.getPositionInfo():optionalEmployee.get().getPositionInfo();
+
+            if(optionalEmployee.get().getPositionInfo().getCurrentPosition()!=null) {
+                optionalEmployee.get().getPositionInfo().setOldPosition(getPosition(optionalEmployee.get().getPositionInfo().getCurrentPosition().getId()));
+                optionalEmployee.get().getPositionInfo().setOldSalary(optionalEmployee.get().getPositionInfo().getCurrentSalary());
             }
             if(emp.getPositionInfo().getCurrentPosition()!=null) {
                 optionalEmployee.get().getPositionInfo().setCurrentPosition(getPosition(emp.getPositionInfo().getCurrentPosition().getId()));
             }
 
+
             //Employee employee = eh.generateEmployeeToUpdate(optionalEmployee.get() , emp);
             Employee employee = eh.generateEmployeeToAssign(optionalEmployee.get() , emp);
-            return eh.generateEmployeePayload(employeeRepository.save(employee));
+            Employee employeeSaved = employeeRepository.save(employee);
+            if(employeeSaved!=null){
+                PositionInfo current = employeeSaved.getPositionInfo();
+                if(pih != null) {
+                    PositionInfoHistory pihOld = saveHistory(pih.getId(), old, false);
+                    logger.info("History saved old "+pihOld.getCurrent());
+                }
+                PositionInfoHistory pihCurrent = saveHistory(0,current, true);
+                logger.info("History saved curr "+pihCurrent.getCurrent());
+            }
+            return eh.generateEmployeePayload(employeeSaved);
         }else{
             logger.info("No results found for id "+emp.getId());
             throw new DataIntegrityViolationException("No results found for id "+emp.getId());
@@ -185,5 +209,20 @@ public class EmployeeService {
                         eh.generateContactPayload(e.getContact()),
                         ph.generatePositionInfoPayload(e.getPositionInfo())))
                 .collect(Collectors.toList());
+    }
+
+    public PositionInfoHistory saveHistory(int id, PositionInfo pi, Boolean current){
+        LocalDateTime currentHour = LocalDateTime.now();
+        logger.info("Testing "+" "+pi.getCorporateEmail()+" "+ pi+" "+ currentHour+" "+ current);
+        PositionInfoHistory pih = new PositionInfoHistory();
+        if(id!=0) {
+            pih.setId(id);
+        }
+            pih.setCorporateEmail(pi.getCorporateEmail());
+            pih.setPositionInfo(pi);
+            pih.setLast_modified(currentHour);
+            pih.setCurrent(current);
+        //PositionInfoHistory pih= new PositionInfoHistory(pi.getCorporateEmail(), pi, currentHour, current);
+        return positionInfoHistoryRepository.save(pih);
     }
 }

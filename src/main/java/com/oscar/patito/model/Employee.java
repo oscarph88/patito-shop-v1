@@ -1,6 +1,9 @@
 package com.oscar.patito.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -30,6 +33,8 @@ import javax.persistence.*;
         query="SELECT e FROM Employee e where e.active=:active " +
                 "and month(e.contact.birthday) >=month(:startDate) and  month(e.contact.birthday) <=month(:endDate) " +
                 "and day(e.contact.birthday) >= day(:startDate) and day(e.contact.birthday) <=day(:endDate)")
+@NamedQuery(name="Employee.findActiveEmployees.email",
+        query="SELECT e.corporateEmail FROM Employee e where e.active=:active")
 public class Employee {
     @Id
     @SequenceGenerator(name = "employee_sequence", sequenceName = "employee_sequence", allocationSize = 1)

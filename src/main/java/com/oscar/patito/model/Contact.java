@@ -24,7 +24,7 @@ public class Contact {
     @Column
     private String personalEmail;
     @Column
-    private Long phoneNumber;
+    private String phoneNumber;
     @Column(nullable = false)
     private String address;
     @Column

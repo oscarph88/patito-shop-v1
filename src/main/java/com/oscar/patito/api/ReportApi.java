@@ -3,6 +3,7 @@ package com.oscar.patito.api;
 import com.oscar.patito.dto.EmployeeDTO;
 import com.oscar.patito.dto.PositionDTO;
 import com.oscar.patito.dto.PositionInfoDTO;
+import com.oscar.patito.dto.PositionInfoHistoryDTO;
 import com.oscar.patito.enums.SalaryRangeEnum;
 import com.oscar.patito.helper.EmployeeHelper;
 import com.oscar.patito.service.EmployeeService;
@@ -41,6 +42,19 @@ public class ReportApi {
         } else {
             logger.info("No positions info found");
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions info found");
+        }
+    }
+
+    @GetMapping("employees/positions-history")
+    @ResponseBody
+    public List<PositionInfoHistoryDTO> listPositionsInfoHistory() {
+        List<PositionInfoHistoryDTO> positionsInfoHistory = positionService.listPositionsInfoHistory();
+        logger.info("Positions history info found " + positionsInfoHistory.size());
+        if (positionsInfoHistory.size() > 0) {
+            return positionsInfoHistory;
+        } else {
+            logger.info("No positions history info found");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions history info found");
         }
     }
 

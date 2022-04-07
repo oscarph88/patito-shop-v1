@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,9 @@ public class AdminApi {
 
 
     @PostMapping("employees/create")
-    @ResponseBody
-    public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeRequest){
+    //@RequestMapping(value="employees/create", method=RequestMethod.POST)
+    //@ResponseBody
+    public EmployeeDTO saveEmployee(@RequestBody @Valid EmployeeDTO employeeRequest){
         try {
             EmployeeDTO employee = employeeService.saveEmployee(employeeRequest);
             logger.error("Save Success with ID "+ employee.getId() + " and mail " + employee.getCorporateEmail());

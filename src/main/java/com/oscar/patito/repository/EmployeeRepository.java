@@ -29,4 +29,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     //List<Employee> findNextWeekEmployeeBirthdate(@Param("active") Boolean a, @Param("startDate") LocalDateTime s, @Param("endDate") LocalDateTime e);
     @Query(name = "Employee.findNextWeekEmployeeBirthday2")
     List<Employee> findNextWeekEmployeeBirthdate2(@Param("active") Boolean a, @Param("startDate") LocalDateTime s, @Param("endDate") LocalDateTime e);
+    @Query(name = "Employee.findActiveEmployees.email")
+    List<String> findEmailAllActive(@Param("active") Boolean s);
 }
