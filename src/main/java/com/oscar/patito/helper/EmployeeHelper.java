@@ -1,5 +1,6 @@
 package com.oscar.patito.helper;
 
+import com.oscar.patito.dto.PositionDTO;
 import com.oscar.patito.enums.SalaryRangeEnum;
 import com.oscar.patito.model.Contact;
 import com.oscar.patito.model.Employee;
@@ -12,6 +13,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EmployeeHelper {
 
@@ -152,5 +157,36 @@ public class EmployeeHelper {
         BigDecimal bd = BigDecimal.valueOf(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
+    }
+
+    public Map<String, String> getCountGender(List<EmployeeDTO> employees){
+        Map<String, Long> countForGender = employees.stream()
+                .collect(Collectors.groupingBy(EmployeeDTO::getGender, (Collectors.counting())));
+        Map<String, String> percentForGender = countForGender.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> calculatePercentage(entry.getValue(), employees.size())+" %"));
+        logger.info("Counting "+countForGender);
+        return percentForGender;
+    }
+
+    public Map<SalaryRangeEnum,String> getPercentSalary(List<PositionInfoDTO> positionsInfo) {
+        Map<SalaryRangeEnum,List<PositionInfoDTO>> positionsRange = positionsInfo.stream()
+                .collect(Collectors.groupingBy(EmployeeHelper::getRange));
+        Map<SalaryRangeEnum, String> percentForSalary = positionsRange.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> calculatePercentage(entry.getValue().size(), positionsInfo.size())+" %"));
+        logger.info("Counting salary "+positionsRange.size());
+        return percentForSalary;
+    }
+
+    public Map<String, Long> getEmployeesPositions(List<PositionInfoDTO> positionsInfo){
+        List<PositionDTO> currentPositions= new ArrayList<>();
+        for(PositionInfoDTO pip: positionsInfo){
+            currentPositions.add(pip.getCurrentPosition());
+        }
+        logger.info("Current positions assigned to employees " + currentPositions.stream().distinct().count());
+        Map<String, Long> countForPosition = currentPositions.stream()
+                .collect(Collectors.groupingBy(PositionDTO::getName, Collectors.counting()));
+        return countForPosition;
     }
 }

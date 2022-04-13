@@ -67,10 +67,11 @@ public class AdminApi {
 
     }
 
-    @PutMapping("employees/update")
+    @PutMapping("employees/{id}/update")
     @ResponseBody
-    public EmployeeDTO updateEmployee(@RequestBody EmployeeDTO employeeRequest){
+    public EmployeeDTO updateEmployee(@RequestBody EmployeeDTO employeeRequest, @PathVariable Integer id){
         try {
+            employeeRequest.setId(id);
             EmployeeDTO employee= employeeService.updateEmployee(employeeRequest);
             logger.info("Update Success with id " + employee.getId() + " and email " + employee.getCorporateEmail());
             return employee;
@@ -131,7 +132,7 @@ public class AdminApi {
 
     }
 
-    @GetMapping("employee/filter")
+    @GetMapping("employees/filter")
     @ResponseBody
     public List<EmployeeDTO> filterEmployees(@RequestParam(required = false) String firstName,
                                              @RequestParam(required = false) String lastName,
