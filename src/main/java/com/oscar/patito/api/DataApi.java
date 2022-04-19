@@ -63,4 +63,9 @@ public class DataApi {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No positions found");
         }
     }
+
+    @GetMapping("greeting")
+    public @ResponseBody String greeting() {
+        return positionService.getWelcomeMessage();
+    }
 }

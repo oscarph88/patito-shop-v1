@@ -83,5 +83,8 @@ public class PositionService {
                 p.getCurrent())).collect(Collectors.toList());
     }
 
+    public String getWelcomeMessage() {
+        return "Hello World!";
+    }
 
 }
