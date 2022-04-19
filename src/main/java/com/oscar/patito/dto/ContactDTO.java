@@ -1,5 +1,7 @@
 package com.oscar.patito.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.OptBoolean;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,5 +20,6 @@ public class ContactDTO {
     private String city;
     private String state;
     private String country;
+    //@JsonFormat(lenient = OptBoolean.FALSE, shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     private LocalDateTime birthday;
 }
